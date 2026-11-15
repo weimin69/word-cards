@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.npm-cache/
+*.log
+.DS_Store
+
+# 运行时生成的单词数据
+data/words.json
+!data/.gitkeep
