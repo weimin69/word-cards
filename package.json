@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "单词卡：一个在终端里运行的 TypeScript 新手练手项目",
+  "description": "A local-first terminal flashcard app for managing vocabulary and taking quizzes.",
+  "license": "MIT",
   "engines": {
     "node": ">=20"
   },

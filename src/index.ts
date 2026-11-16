@@ -80,7 +80,8 @@ function printMenu(words: WordCard[]): void {
   console.log(style.dim(`  ${LINE}`));
   console.log("  1  浏览单词        2  添加单词");
   console.log("  3  开始测验        4  删除单词");
-  console.log("  5  学习统计        0  退出");
+  console.log("  5  学习统计        6  清空记录");
+  console.log("  0  退出");
   console.log();
 }
 
@@ -95,18 +96,19 @@ function listWords(words: WordCard[]): void {
     return;
   }
 
+//return < 0 则前面的a排在前面 ，reutn > 0则后面的b排在前面
   const sorted = [...words].sort((a, b) => {
-      const aTotal = a.correct + a.wrong;
-      const bTotal = b.correct + b.wrong;
+    const aTotal = a.correct + a.wrong;
+    const bTotal = b.correct + b.wrong;
 
-      // 还没测验过的排最前面
-      if (aTotal === 0 && bTotal === 0) return a.word.localeCompare(b.word);
-      if (aTotal === 0) return -1;
-      if (bTotal === 0) return 1;
+    if (aTotal === 0 && bTotal === 0) return a.word.localeCompare(b.word);
+    if (aTotal === 0) return -1;
+    if (bTotal === 0) return 1;
 
-      // 正确率低的排前面
-      return accuracy(a.correct, a.wrong) - accuracy(b.correct, b.wrong);
-    });
+    return accuracy(a.correct, a.wrong) - accuracy(b.correct, b.wrong);
+
+  });
+
 
   console.log(style.bold(`  共 ${words.length} 个单词`));
   console.log();
@@ -308,6 +310,30 @@ async function runQuiz(words: WordCard[]): Promise<void> {
   console.log(style.dim(`  ${comment}`));
 }
 
+async function reSetProgress(words: WordCard[]): Promise<void> {
+  if (words.length === 0) {
+      console.log(style.yellow("  单词本是空的，没有学习记录可清空。"));
+      return;
+  }
+
+  const answer = await ask("确定清空所有的学习记录吗? 单词会保留 Y/N ");
+
+  if (answer.toLocaleLowerCase() !== "y") {
+    console.log(style.dim("   已保留   "));
+    return;
+  }
+
+  for (const card of words) {
+    card.correct = 0;
+    card.wrong = 0;
+  }
+
+  await saveWords(words);
+  console.log(style.green("  ✓ 学习记录已清空，单词本身都还在。"));
+
+}
+
+
 async function main(): Promise<void> {
   const words = await loadWords();
 
@@ -341,12 +367,15 @@ async function main(): Promise<void> {
       case "5":
         showStats(words);
         break;
+      case "6":
+        await reSetProgress(words);
+        break;
       case "0":
         rl.close();
         console.log("  再见，记得复习 👋");
         return;
       default:
-        console.log(style.yellow("  请输入 0 到 5 之间的数字。"));
+        console.log(style.yellow("  请输入 0 到 6 之间的数字。"));
     }
   }
 }
